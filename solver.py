@@ -1,3 +1,5 @@
+from random import Random
+
 class HangmanSolver:
 
     def __init__(self, game, dictionary):
@@ -40,6 +42,24 @@ class HangmanSolver:
                     self.update_dictionary()
 
                 return letter
+
+class HangmanRandomSolver(HangmanSolver):
+
+    def __init__(self, game, dictionary, random_seed = None):
+        super(HangmanRandomSolver, self).__init__(game, dictionary)
+        self.letters = list(set(l for word in self.dictionary for l in word))
+        self.rng = Random(random_seed)
+
+    def guess(self):
+        letter = self.rng.choice(self.letters)
+        self.game.guess(letter)
+        if letter in self.game.get_hint():
+            self.update_dictionary()
+            self.letters = list(set(l for word in self.dictionary for l in word))
+        else:
+            self.remove_letter_from_dictionary(letter)
+            self.letters.remove(letter)
+        return letter
 
 class HangmanFrequencySolver(HangmanSolver):
 
