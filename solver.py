@@ -55,7 +55,8 @@ class HangmanRandomSolver(HangmanSolver):
         self.game.guess(letter)
         if letter in self.game.get_hint():
             self.update_dictionary()
-            self.letters = list(set(l for word in self.dictionary for l in word))
+            self.letters = list(set(l for word in self.dictionary for l in word
+                                    if not l in self.game.get_guessed()))
         else:
             self.remove_letter_from_dictionary(letter)
             self.letters.remove(letter)
