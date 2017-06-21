@@ -3,6 +3,7 @@ from random import choice
 
 from game import HangmanGame
 from solver import HangmanSolver
+from solver import HangmanFrequencySolver
 
 re = regex("^[a-zåäö]+$")
 
@@ -12,10 +13,10 @@ finnish_words = [w.lower().strip() for w in finnish_words if re.match(w)]
 english_words = open("/usr/share/dict/american-english","r").readlines()
 english_words = [w.lower().strip() for w in english_words if re.match(w)]
 
-def play(word, words, verbose=True):
+def play(word, words, solver, verbose=True):
 
     G = HangmanGame(word)
-    H = HangmanSolver(G, words)
+    H = solver(G, words)
 
     if verbose:
         print("Playing Hangman!")
@@ -43,11 +44,11 @@ def play(word, words, verbose=True):
 
     return G
 
-def find_worst_words(words):
+def find_worst_words(words, solver):
     worst_words = {}
 
-    for word in words:
-        G = play(word, words, False)
+    for i,word in enumerate(words):
+        G = play(word, words, solver, False)
         score = G.get_bad_guess_count()
         if not len(word) in worst_words or worst_words[len(word)][0] < score:
             worst_words[len(word)] = (score, word)
@@ -63,4 +64,4 @@ def find_worst_words(words):
 
 if __name__ == "__main__":
 
-    find_worst_words(english_words)
+    find_worst_words(finnish_words, HangmanFrequencySolver)
