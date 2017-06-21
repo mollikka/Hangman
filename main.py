@@ -52,8 +52,12 @@ def find_worst_words(words):
         if not len(word) in worst_words or worst_words[len(word)][0] < score:
             worst_words[len(word)] = (score, word)
 
-        print(word, score)
-
+        if i%250 == 0:
+            print(i,"words evaluated")
+            for i in sorted(worst_words):
+                print(i, worst_words[i][0], worst_words[i][1])
+            print()
+    print(i,"words evaluated")
     for i in sorted(worst_words):
         print(i, worst_words[i][0], worst_words[i][1])
 
