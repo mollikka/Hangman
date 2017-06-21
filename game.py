@@ -24,10 +24,7 @@ class HangmanGame:
         return self.good_guess_count
 
     def get_hint(self):
-        hint = self.word
-        for i,letter in enumerate(self.word):
-            if letter not in self.guessed:
-                hint = hint[:i] + "_" + hint[i+1:]
+        hint = "".join([i if i in self.guessed else "_" for i in self.word])
         return hint
 
     def get_missing(self):
