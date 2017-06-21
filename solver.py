@@ -1,4 +1,5 @@
 from random import Random
+from math import log2
 
 class HangmanSolver:
 
@@ -92,3 +93,54 @@ class HangmanFrequencySolver(HangmanSolver):
         self.update_symbols()
         return options[0][0]
 
+class HangmanEntropySolver(HangmanSolver):
+
+    def __init__(self, game, dictionary):
+        super(HangmanEntropySolver, self).__init__(game, dictionary)
+        self.letters = list(set(l for word in self.dictionary for l in word))
+
+    def score(self, info_group):
+        return sum([i/len(info_group) * log2(i/len(info_group))
+                                    for i in info_group.values()])
+
+    def guess(self):
+        hint = self.game.get_hint()
+        information_groups = {}
+
+        for letter in self.letters:
+
+            info_group = {}
+
+            for word in self.dictionary:
+                #if not letter in word: continue
+                masked_word = "".join([i if i==letter else "_" for i in word])
+                if masked_word in info_group:
+                    info_group[masked_word] += 1
+                else:
+                    info_group[masked_word] = 1
+            if len(info_group) == 0: continue
+            information_groups[letter] = self.score(info_group)
+
+        best_letter = min(information_groups, key=information_groups.get)
+        #best_letters = [i for i in information_groups
+        #          if information_groups[i] == information_groups[best_letter]]
+        my_guess = best_letter
+        amount_of_hits = self.game.guess(my_guess)
+
+        if amount_of_hits == -1:
+            raise Exception
+
+        if amount_of_hits == 0:
+            self.remove_letter_from_dictionary(my_guess)
+            self.letters.remove(my_guess)
+        else:
+            self.update_dictionary()
+            self.letters = list(set(l for word in self.dictionary for l in word
+                                    if not l in self.game.get_guessed()))
+
+        return my_guess
+
+class HangmanInfoSolver(HangmanEntropySolver):
+
+    def score(self, info_group):
+        return info_group[max(info_group, key=info_group.get)]
