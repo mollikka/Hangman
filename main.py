@@ -1,9 +1,12 @@
 from re import compile as regex
-from random import choice
+from random import Random
 
 from game import HangmanGame
 from solver import HangmanSolver
 from solver import HangmanFrequencySolver
+from solver import HangmanRandomSolver
+from solver import HangmanEntropySolver
+from solver import HangmanInfoSolver
 
 re = regex("^[a-zåäö]+$")
 
@@ -62,6 +65,28 @@ def find_worst_words(words, solver):
     for i in sorted(worst_words):
         print(i, worst_words[i][0], worst_words[i][1])
 
-if __name__ == "__main__":
+def compare_solvers(solvers, wordlist, repeat_count, random_seed=None, scorelimit=None):
+    score = {solver: 0 for solver in solvers}
+    rng = Random(random_seed)
+    for i in range(repeat_count):
+        word = rng.choice(wordlist)
+        print(word)
+        for solver in solvers:
+            G = play(word, wordlist, solver, False)
+            if scorelimit:
+                score[solver] += 1*(G.get_bad_guess_count() >= scorelimit)
+            else:
+                score[solver] += G.get_bad_guess_count()
+    return score
 
-    find_worst_words(finnish_words, HangmanFrequencySolver)
+if __name__ == "__main__":
+    score = compare_solvers([HangmanInfoSolver,
+                     HangmanFrequencySolver,
+                     HangmanRandomSolver,
+                     HangmanEntropySolver],
+                     english_words,
+                     100,
+                     "AIFNAJFIA",
+                     8)
+    for solver in score:
+        print(solver.__name__, score[solver])
